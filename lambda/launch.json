@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Lambda",
+        "program": "${workspaceFolder}/test.js",
+        "env": {
+          "ROUTE_1": "https://example.com/static.js",
+          "ROUTE_2": "https://example.com/data",
+          "UPRN": "72305110"
+        }
+      }
+    ]
+  }
+  
