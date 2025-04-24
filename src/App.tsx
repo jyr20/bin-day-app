@@ -1,39 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { CalendarDays, Trash2, Clock3, RefreshCw } from 'lucide-react' // Import the refresh icon
-
-interface BinDayInfo {
-  days: number
-  colorName: 'Black' | 'Green'
-  todayDate: string
-  nextEventDate: string
-}
-
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date)
-}
-
-const timeAgo = (timestamp: Date): string => {
-  const now = new Date()
-  const diffMs = now.getTime() - timestamp.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffMinutes = Math.floor(diffMs / (1000 * 60)) % 60
-
-  if (diffDays > 0) {
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-  } else if (diffHours > 0) {
-    return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
-  } else if (diffMinutes > 0)
-    return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`
-  return 'Just now'
-}
+import { BinDayInfo, formatDate, timeAgo } from './utils'
 
 const BinDayApp = () => {
   const [data, setData] = useState<BinDayInfo | null>(null)
@@ -93,14 +61,30 @@ const BinDayApp = () => {
                 Days Until: <strong>{data.days}</strong>
               </span>
             </div>
-            <div
-              className={`mt-4 py-3 px-6 rounded-full text-white text-lg font-semibold inline-block shadow-lg transition-all duration-300 ${
-                data.colorName === 'Black'
-                  ? 'bg-zinc-900 hover:bg-zinc-800'
-                  : 'bg-green-600 hover:bg-green-500'
-              }`}
-            >
-              {data.colorName} Bin
+            <div className="space-y-4">
+              <div
+                className={`py-3 px-6 rounded-full text-white text-lg font-semibold inline-block shadow-lg transition-all duration-300 border-4 ${
+                  data.colorName === 'Black'
+                    ? 'bg-zinc-900 hover:bg-zinc-800'
+                    : 'bg-green-600 hover:bg-green-500'
+                } ${
+                  data.days <= 1
+                    ? 'border-red-500 animate-[pulseBorder_2s_infinite]'
+                    : 'border-transparent'
+                }`}
+              >
+                {data.colorName} Bin
+              </div>
+              {data.days === 0 && (
+                <div className="text-red-600 font-bold text-xl animate-pulse">
+                  TODAY!
+                </div>
+              )}
+              {data.days === 1 && (
+                <div className="text-red-600 font-bold text-xl animate-pulse">
+                  PUT BINS OUT TONIGHT!
+                </div>
+              )}
             </div>
           </div>
         )}

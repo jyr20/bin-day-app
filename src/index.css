@@ -1,1 +1,10 @@
 @import "tailwindcss";
+@keyframes pulseBorder {
+    0%, 100% {
+      border-color: #f87171; /* red-400 */
+    }
+    50% {
+      border-color: #fecaca; /* red-200 */
+    }
+  }
+  
