@@ -6,6 +6,19 @@ const ROUTE_2 = process.env.ROUTE_2
 const PROPERTY_NAME = process.env.PROPERTY_NAME || 'Hm'
 const HEADER_PROP_NAME = process.env.HEADER_PROP_NAME || 'Hm'
 
+const getMidnightDate = (timestamp) => {
+  const date = timestamp ? new Date(timestamp) : new Date()
+  date.setHours(0, 0, 0, 0) // Set time to midnight
+  return date
+}
+
+const getMidnightDayDiff = (timestamp, todayMidnight) => {
+  const todayMidnightDate = todayMidnight || getMidnightDate()
+  return Math.ceil(
+    (getMidnightDate(timestamp) - todayMidnightDate) / (1000 * 60 * 60 * 24)
+  )
+}
+
 // Helper to build query string from an object
 const buildQueryString = (params) =>
   Object.entries(params)
@@ -85,17 +98,17 @@ exports.handler = async (event) => {
     const items = JSON.parse(response2)
 
     // 3. Filter by type and date
-    const now = new Date()
+    const todayMidnight = getMidnightDate()
     const relevantItems = items
       .filter(
         (item) =>
           (item.type === 'Black' || item.type === 'Green') &&
-          new Date(item.date) > now
+          getMidnightDayDiff(item.date, todayMidnight) >= 0
       )
       .map((item) => ({
         ...item,
         dateObj: new Date(item.date),
-        days: Math.ceil((new Date(item.date) - now) / (1000 * 60 * 60 * 24)),
+        days: getMidnightDayDiff(item.date, todayMidnight),
       }))
 
     // 4. Find the closest future event
@@ -111,6 +124,11 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Or restrict to your domain
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET,OPTIONS',
+      },
       body: JSON.stringify({
         color: nextEvent.type === 'Green' ? 0 : 1,
         days: nextEvent.days,
